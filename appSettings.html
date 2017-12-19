@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./node_modules/xel/stylesheets/macos.theme.css">
+        <link rel="stylesheet" href="./stylesheets/windows.css">
+
+        <style>
+
+            x-tabs, x-tab {
+                padding-top:3px;
+                padding-bottom: 3px;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            div.container {
+                position:absolute; 
+                left:8px; 
+                top:53px; 
+                right:10px; 
+                bottom:26px; 
+                overflow: auto;
+                padding:5px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+        <div class="title-bar">
+            <div style="padding-top:3px; padding-left:3px;">
+                <x-icon skin="flat-condensed" name="code"></x-icon>
+            </div>
+            <div id="tit">Application Settings</div> 
+            <div></div>
+        </div>
+        <div class="title-button">
+            <x-button onclick="closeWindow()" id="close-btn" skin="mini-bordered">
+                <x-icon name="close"></x-icon>
+            </x-button>
+        </div>
+
+        <!-- menu -->
+        <div id="menu-settings" style="visibility:hidden" class="ribbon">
+            <x-box>
+                <x-buttons tracking="-1">
+                    <x-button onMouseout="status('')" onClick="updateSettings()" onMouseOver="status('update Settings')">
+                        <x-icon name="done"></x-icon>
+                    </x-button>
+                    <x-button onMouseout="status('')" onClick="restoreSettings()" onMouseOver="status('Restore factory defaults')">
+                        <x-icon name="build"></x-icon>
+                    </x-button>
+                </x-buttons>
+            </x-box>
+        </div>
+
+        <div id="menu-info" style="visibility:hidden" class="ribbon">
+            <x-buttons tracking="-1">
+                <x-button onMouseout="status('')" onClick="loadSetpoints()" onMouseOver="status('Load setpoints')" id="btn-load-setpoints">
+                    <x-icon name="folder-open"></x-icon>
+                </x-button>
+                <x-button onMouseout="status('')" onClick="saveSetpoints()" onMouseOver="status('Save setpoints')" id="btn-save-setpoints">
+                    <x-icon name="save"></x-icon>
+                </x-button>
+            </x-buttons>
+        </div>     
+
+        <div id="container-settings" class="container" style="visibility:hidden; overflow:hidden;">
+            <div id="containerLoading" style="visibility:visible; z-index:0; position:absolute; left:1px; top:1px; right:1px; bottom: 108px; display: flex; justify-content:center; align-items: center;">
+                <x-box><x-progressbar style="width:100px;"></x-progressbar><x-label style="margin-left:20px;"> loading</x-label></x-box>
+            </div>
+            <div style="position:absolute; left:1px;top:1px; right:1px; bottom:1px; overflow:hidden; visibility:hidden;" id="settings-monaco-editor"></div>
+        </div>
+
+        <div id="container-info" class="container" style="visibility:hidden"> 
+            Application Info
+        </div>
+
+        <!-- status bar -->
+        <div class="statusbar">
+                <x-label id="statusText"></x-label>
+        </div>
+
+    </body>
+    <script src="./node_modules/xel/xel.min.js"></script>
+    <script src="./appSettings.js"></script>
+    
+    <script>
+        function status(txt){
+            document.getElementById('statusText').innerHTML=txt;
+        }
+    </script>
+    
+</html>

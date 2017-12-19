@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./node_modules/xel/stylesheets/macos.theme.css">
+        <link rel="stylesheet" href="./stylesheets/windows.css">
+
+        <style>
+        html,
+        body {
+            height: 100%;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            padding: 0;   
+            margin: 0;
+            overflow: auto;
+            background-color: white;
+        }
+       
+        .sleepDecoration {
+	        background: lightblue;
+	        width: 5px;
+            left: 3px;
+        }
+        </style>
+
+    </head>
+
+    <body>
+        <div class="title-bar">
+            <div style="padding-top:3px; padding-left:3px;">
+                <x-icon skin="flat-condensed" name="code"></x-icon>
+            </div>
+            <div id="tit">untitled.js - Javascript Editor</div> 
+            <div></div>
+        </div>
+        <div class="title-button">
+            <x-button onclick="closeEditor()" id="close-btn" skin="mini-bordered">
+                <x-icon name="close"></x-icon>
+            </x-button>
+        </div>
+
+        <!-- menu -->
+        <div class="ribbon">
+            <x-buttons tracking="-1">
+                <x-button onMouseout="status('')" onClick="loadScript()" onMouseOver="status('Load Script')" id="btn-load-script">
+                    <x-icon name="folder-open"></x-icon>
+                </x-button>
+                <x-button onMouseout="status('')" onClick="saveScript()" onMouseOver="status('Save Script')" id="btn-save-script">
+                        <x-icon name="file-download"></x-icon>
+                    </x-button>
+                <x-button onMouseout="status('')" onClick="saveScriptAs()" onMouseOver="status('Save Script as...')" id="btn-save-script-as">
+                    <x-icon name="save"></x-icon>
+                </x-button>
+            </x-buttons>
+    
+            <x-buttons style="margin-left: 5px;" tracking="-1">
+                <x-button onClick="runScript()" onMouseout="status('')" onMouseOver="status('Run script')" togglable id="btn-start-script">
+                    <x-icon name="play-circle-outline"></x-icon>
+                </x-button>
+                <x-button onClick="stopScript(this)" onMouseout="status('')" onMouseOver="status('Stop script')" id="btn-stop-script" disabled>
+                    <x-icon name="stop"></x-icon>
+                </x-button>
+                <x-button onClick="skipSleep(this)" onMouseout="status('')" onMouseOver="status('Skip sleep')" id="btn-skip-sleep" disabled>
+                    <x-icon name="wrap-text"></x-icon>
+                </x-button>
+                <x-button onClick="dockScript()" onMouseout="status('')" onMouseOver="status('Dock script in main Window')" id="btn-dock-script">
+                    <x-icon id="icon-dock-script" name="playlist-add"></x-icon>
+                </x-button>
+                <x-input style="width:120px;" id="script-name" value="untitled.js" onKeyUp="changeName(this)" onChange="changeName(this)"></x-input>
+            </x-buttons> 
+        </div>
+            
+
+        <div style="position:absolute; left:0px; right:1px; top:60px; bottom:26px; overflow:hidden">
+
+            <div id="containerLoading" style="visibility:visible; z-index:0; position:absolute; left:1px; top:1px; right:1px; bottom: 108px; display: flex; justify-content:center; align-items: center;">
+                <x-box><x-progressbar style="width:100px;"></x-progressbar><x-label style="margin-left:20px;"> loading</x-label></x-box>
+            </div>
+
+            <div id="container" style="visibility:hidden; z-index:1; position:absolute; left:1px; top:1px; right:1px; bottom: 108px; resize:vertical; overflow:hidden;">
+            </div>
+            <div id="mydiv" style="position:absolute; left:1px; right:1px; bottom:102px; height:5px; cursor:row-resize; background-color:#777777;"></div>
+            <div id="bottom" style="font-size:14px; position:absolute; left:1px; right:1px; bottom:1px; height: 100px; overflow:auto;">script output</div>
+        </div>
+
+        <!-- status bar -->
+        <div class="statusbar">
+                <x-label id="statusText"></x-label>
+        </div>
+
+
+    </body>
+    <script src="./node_modules/xel/xel.min.js"></script>
+    <script src="./editor.js"></script>
+    <script>
+        function status(txt){
+            document.getElementById('statusText').innerHTML=txt;
+        }
+
+        
+dragElement(document.getElementById(("mydiv")));
+
+function dragElement(elmnt) {
+  elmnt.onmousedown = dragMouseDown;
+  
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    // get the mouse cursor position at startup:
+    pos1 = e.clientY;
+    htop = document.getElementById('container').clientHeight;
+    hbottom = document.getElementById('bottom').clientHeight;
+    console.log('top-h:',htop)
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    // calculate the new cursor position:
+    pos4 = e.clientY;
+    // set the element's new position:
+    newhtop = (htop+pos4-pos1)
+    newhbottom = (hbottom-pos4+pos1) 
+    if (newhtop<100) return
+    if (newhbottom<24) return
+    document.getElementById('container').style.height = newhtop + "px";;
+    document.getElementById('bottom').style.height = newhbottom + "px";;
+    elmnt.style.top = (pos4-pos1+htop+5) + "px"
+  }
+
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+    </script>
+    
+</html>

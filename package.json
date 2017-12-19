@@ -1,0 +1,33 @@
+{
+  "name": "micurie",
+  "version": "0.0.1",
+  "description": "A minimal Electron application with node serialport",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "install": "electron-rebuild"
+  },
+  "keywords": [
+    "MICURIE"
+  ],
+  "author": "Martin Breitenlechner",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "electron-rebuild": "^1.4.0"
+  },
+  "dependencies": {
+    "data-table": "^2.0.0",
+    "electron-settings": "^3.1.4",
+    "esprima": "^4.0.0",
+    "hdf5": "http://127.0.0.1/hdf5-0.3.3.tgz",
+    "monaco-loader": "^0.8.2",
+    "remote": "^0.2.6",
+    "serialport": "^4.0.7",
+    "sleep": "^5.1.1",
+    "striptags": "^3.1.1",
+    "virtual-list": "^1.0.1",
+    "vm": "^0.1.0",
+    "xel": "0.0.68"
+  }
+}

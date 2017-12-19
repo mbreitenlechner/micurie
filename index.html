@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MICURIE manager</title>
+        <link rel="stylesheet" href="node_modules/xel/stylesheets/macos.theme.css">
+        <link rel="stylesheet" href="./stylesheets/windows.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/modules.css">
+        <style>
+            div.prototype {
+                display: none;
+            }
+            x-box.prototype {
+                display: none;
+            }
+            div.moduleDiv {
+                -webkit-transform: translate(0px, 0px);
+                transform: translate(0px, 0px);
+            }
+        </style>
+    </head>
+
+    <body class="mainWindow">
+
+        <!-- recorder settings -->
+        <x-drawer id="recorder-settings" style="margin-top:24px; padding:10px;">
+            <x-label>Data Recorder Settings:</x-label>
+            <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                <x-label style="width:150px;">File write interval:</x-label>
+                <x-numberinput id="fileWriteInterval" value="30" min="10" max="3600" suffix=" s" step="10"></x-numberinput>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+               <x-checkbox id="saveSetpoints"></x-checkbox>
+               <x-label for="saveSetpoints">record Set Values</x-label>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-checkbox id="saveLogEvents"></x-checkbox>
+                <x-label for="saveLogEvents">record log events</x-label>
+             </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-checkbox id="recorderAutoNewFile"></x-checkbox>
+                <x-label for="recorderAutoNewFile">auto-create new files after </x-label>
+                <x-numberinput style="width:50px;" id="recorderNewFileInterval" value="60" min="1" max="1440" suffix=" min" step="1"></x-numberinput>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-label style="width:65px;">Filename </x-label>
+                <x-input style="min-width:185px;" id="recorderFilename" value="{FILENAME}"></x-input>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-label style="width:65px;">Path </x-label>
+                <x-input style="width:100px;" id="recorderFolder" value="{PATH}"></x-input>
+                <x-button id="btn-recorder-filename-browse">
+                    <x-icon name="folder"></x-icon>
+                    <x-label> browse</x-label>
+                </x-button>
+            </x-box>
+        
+            <div id="recorderSettingsContainer">
+                <x-box style="margin-top:10px; margin-bottom:5px;"><x-label>Individual data update intervals:</x-label></x-box>
+                <div class="prototype">
+                    <x-box id="recorderSettingsPrototype">
+                        <x-label style="margin-left:10px; width:150px;">{MODULENAME}:</x-label>
+                        <x-numberinput id="{MODULEID}-updateInterval" value="{VALUE}" min="0.01" suffix=" s" step="1"></x-numberinput>
+                    </x-box>
+                </div>
+            </div>
+            <x-box style="margin-left:180px; margin-top:20px;">
+                    <x-button skin="condensed" onclick="updateRecorderSettings()"><x-label>ok</x-label></x-button>
+                    <x-button skin="condensed" onclick="cancelRecorderSettings()"><x-label>cancel</x-label></x-button>
+            </x-box>                
+        </x-drawer>
+        
+        <!-- module settings -->
+        <x-drawer id="moduleSettings" style="margin-top:24px; padding:10px;">
+                <x-label>Module Settings:</x-label>
+                <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                    <x-label style="width:65px;">Name:</x-label>
+                    <x-input style="width:145px;" id="modulename-{MODULEID}" value="{MODULENAME}"></x-input>
+                    <x-button style="margin-left:10px;" onClick="changeModuleName('{MODULEID}')"><x-icon name="arrow-forward"></x-icon></x-button>
+                </x-box>
+                <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                    <x-label style="width:65px;">unique ID:</x-label>
+                    <x-input disabled style="min-width:185px;" id="moduleOptionsModuleId" value="{MODULEID}"></x-input>
+                </x-box>
+                <x-box style="margin-bottom: 10px; margin-left:10px;">
+                    <x-label style="width:165px;">data poll interval </x-label>
+                    <x-numberinput style="width:50px;" id="moduleOptionsPollInterval-{MODULEID}" value="{POLLINTERVAL}" min="1" max="1000" suffix=" ms" step="10"></x-numberinput>
+                </x-box>
+                <x-box style="margin-bottom:10px;">
+                    <x-buttons tracking="1">
+                        <x-button id="btn-connect-{MODULEID}" onClick="reconnectModule('{MODULEID}')"><x-label>connect</x-label></x-button>
+                        <x-button id="btn-disconnect-{MODULEID}" onClick="disconnectModule('{MODULEID}')"><x-label>disconnect</x-label></x-button>
+                    </x-buttons>
+                </x-box>
+                <x-box style="margin-top:5px;" class="prototype" id="enabledPrototype-{MODULEID}">
+                    <x-label style="width:100px;">{NAME}</x-label>
+                    <x-switch enabletoggle id="enableSwitch-{FULLID}"></x-switch>
+                    <x-label style="width:80px;" for="enableSwitch-{FULLID}">enable</x-label>
+                    <x-switch recordtoggle id="recordSwitch-{FULLID}"></x-switch>
+                    <x-label style="width:80px;" for="recordSwitch-{FULLID}">record</x-label>
+                </x-box>  
+                <x-box style="margin-left:180px; margin-top:20px;">
+                    <x-button skin="condensed" onclick="updateModuleSettings('{MODULEID}')"><x-label>ok</x-label></x-button>
+                    <x-button skin="condensed" onclick="closeModuleSettings('{MODULEID}')"><x-label>cancel</x-label></x-button>
+                </x-box>
+              
+            </x-drawer>
+    
+        <!-- AIO settings -->
+        <x-drawer id="AIOSettings" style="margin-top:24px; padding:10px;">
+            <x-label>Settings for {ITEMNAME}:</x-label>
+            <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                <x-label style="width:95px;">Name:</x-label>
+                <x-input style="width:145px;" id="AIO-itemname-{FULLID}" value="{ITEMNAME}"></x-input>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-label style="width:130px;">Set Range min-max</x-label>
+                <x-numberinput style="width:50px;" id="AIO-setmin-{FULLID}" value="{SETMIN}"></x-numberinput>
+                <x-label> - </x-label>
+                <x-numberinput style="width:50px;" id="AIO-setmax-{FULLID}" value="{SETMAX}"></x-numberinput>
+            </x-box>
+            <x-box style="margin-bottom: 10px; margin-left:10px;">
+                <x-label style="width:130px;">Act Range min-max</x-label>
+                <x-numberinput style="width:50px;" id="AIO-actmin-{FULLID}" value="{ACTMIN}"></x-numberinput>
+                <x-label> - </x-label>
+                <x-numberinput style="width:50px;" id="AIO-actmax-{FULLID}" value="{ACTMAX}"></x-numberinput>
+            </x-box>
+            <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                <x-label style="width:95px;">Unit:</x-label>
+                <x-input style="width:145px;" id="AIO-itemunit-{FULLID}" value="{UNIT}"></x-input>
+            </x-box>
+            <x-box style="margin-left:180px; margin-top:20px;">
+                <x-button skin="condensed" onclick="updateAIOItemSettings('{FULLID}')"><x-label>ok</x-label></x-button>
+                <x-button skin="condensed" onclick="closeAIOItemSettings('{FULLID}')"><x-label>cancel</x-label></x-button>
+            </x-box>     
+        </x-drawer>
+
+        <!-- AI settings -->
+        <x-drawer id="AISettings" style="margin-top:24px; padding:10px;">
+                <x-label>Settings for {ITEMNAME}:</x-label>
+                <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                    <x-label style="width:95px;">Name:</x-label>
+                    <x-input style="width:145px;" id="AI-itemname-{FULLID}" value="{ITEMNAME}"></x-input>
+                </x-box>
+                <x-box style="margin-bottom: 10px; margin-left:10px;">
+                    <x-label style="width:130px;">Act Range min-max</x-label>
+                    <x-numberinput style="width:50px;" id="AI-actmin-{FULLID}" value="{ACTMIN}"></x-numberinput>
+                    <x-label> - </x-label>
+                    <x-numberinput style="width:50px;" id="AI-actmax-{FULLID}" value="{ACTMAX}"></x-numberinput>
+                </x-box>
+                <x-box style="margin-top: 10px; margin-bottom: 5px; margin-left:10px;">
+                    <x-label style="width:95px;">Unit:</x-label>
+                    <x-input style="width:145px;" id="AI-itemunit-{FULLID}" value="{UNIT}"></x-input>
+                </x-box>
+                <x-box style="margin-left:180px; margin-top:20px;">
+                    <x-button skin="condensed" onclick="updateAIItemSettings('{FULLID}')"><x-label>ok</x-label></x-button>
+                    <x-button skin="condensed" onclick="closeAIItemSettings('{FULLID}')"><x-label>cancel</x-label></x-button>
+                </x-box>     
+            </x-drawer>
+
+        <!-- title bar -->
+        <div class="title-bar" onclick="testfunction()">
+            <div style="padding-top:3px; padding-left:3px;">
+            <x-icon skin="flat-condensed" name="storage"></x-icon>
+            </div>
+            <div>MICURIE Manager</div> 
+            <div></div>
+        </div>
+        <div class="title-button">
+            <x-button id="close-btn" skin="mini-bordered">
+                <x-icon name="close"></x-icon>
+            </x-button>
+        </div>
+
+        <!-- menu -->
+        <div class="ribbon">
+            <x-buttons tracking="-1">
+                <x-button onMouseout="status('')" onClick="loadSetpoints()" onMouseOver="status('Load setpoints')" id="btn-load-setpoints">
+                    <x-icon name="folder-open"></x-icon>
+                </x-button>
+                <x-button onMouseout="status('')" onClick="saveSetpoints()" onMouseOver="status('Save setpoints')" id="btn-save-setpoints">
+                    <x-icon name="save"></x-icon>
+                </x-button>
+            </x-buttons>
+
+            <x-buttons style="margin-left: 5px;" tracking="-1">
+                <x-button onMouseout="status('')" onMouseOver="status('Start/stop recording')" togglable id="btn-start-recording">
+                    <x-icon name="fiber-manual-record"></x-icon>
+                </x-button>
+              
+                <x-button onMouseout="status('')" onMouseOver="status('Stop recording')" id="btn-stop-recording" disabled>
+                    <x-icon name="stop"></x-icon>
+                </x-button>
+                <x-button onMouseout="status('')" onMouseOver="status('Recorder settings')" id="btn-record-settings">
+                    <x-icon name="settings"></x-icon>
+                </x-button>
+            </x-buttons>
+        
+            <x-buttons style="margin-left:5px;" tracking="-1">
+                <x-button onMouseout="status('')" onMouseOver="status('Create new Script')" onClick="openNewEditor()">
+                    <x-icon name="code"></x-icon>
+                </x-button>
+            </x-buttons>
+
+            <x-buttons style="margin-left:5px;" tracking="-1">
+                <x-button onMouseout="status('')" onMouseOver="status('View/Edit App Settings')" onClick="openAppSettings('settings')">
+                    <x-icon name="tune"></x-icon>
+                </x-button>
+                <!--<x-button onMouseout="status('')" onMouseOver="status('View App Log')" onClick="openAppSettings('log')">
+                        <x-icon name="event-note"></x-icon>
+                </x-button>-->
+                <x-button onMouseout="status('')" onMouseOver="status('Application Info')" onClick="openAppSettings('info')">
+                    <x-icon name="info"></x-icon>
+                </x-button>
+            </x-buttons>
+
+
+
+        </div>
+      
+
+        <div id="bodyDiv" ondrop="dragEnd(event,this)" ondragover="allowDrop(event)" class="body">
+            <div class="bodyContainer" id="MainContainer"></div>
+            
+            <!-- Scripts prototype container  --> 
+            <div style="width: 300px; margin-bottom:2px; margin-left:10px;" id="scriptPrototype" class="prototype"><x-accordion expanded>    
+                    <header>
+                        <x-label>Scripts</x-label>
+                    </header>
+                    <main>
+                        <div id="{PANEL}"></div>
+                    </main>
+                </x-accordion>
+            </div>
+
+            <!-- Script prototype container  --> 
+            <div id="{SCRIPTID}" class="prototype">
+                <x-buttons tracking="-1">
+                    <x-label id="label-script-name-{SCRIPTID}" style="Width:220px;">{SCRIPTNAME}</x-label>
+                    <x-button id="btn-run-script-{SCRIPTID}" onMouseout="status('')" onMouseOver="status('run this script')" onClick="runScript({SCRIPTID})" skin="flat-condensed">
+                        <x-icon name="play-arrow"></x-icon>
+                    </x-button>
+                    <x-button id="btn-stop-script-{SCRIPTID}" onMouseout="status('')" onMouseOver="status('stop script')" onClick="stopScript({SCRIPTID})" skin="flat-condensed" disabled>
+                        <x-icon name="stop"></x-icon>
+                    </x-button>
+                    <x-button id="btn-edit-script-{SCRIPTID}" onMouseout="status('')" onMouseOver="status('edit this script')" onClick="editScript({SCRIPTID})" skin="flat-condensed">
+                        <x-icon name="mode-edit"></x-icon>
+                    </x-button>
+                    <x-button id="btn-remove-script-{SCRIPTID}" onMouseout="status('')" onMouseOver="status('remove this script')" onClick="removeScript({SCRIPTID})" skin="flat-condensed">
+                        <x-icon name="clear"></x-icon>
+                    </x-button>
+                </x-buttons>
+            </div>
+
+            <!-- Module prototype container  --> 
+            <div style="width: 300px; margin-bottom:2px; margin-left:10px;" id="{MODULEID}" class="prototype"><x-accordion expanded>
+                    <header>
+                        <x-label id="moduleNameLabel-{MODULEID}">{NAME}</x-label>
+                        <x-box>
+                        <x-button id="ext-power-{MODULEID}" onClick="togglePower(this,'{MODULEID}')" style="visibility:hidden" onMouseout="status('')" onMouseOver="status('Module Power')" skin="flat-condensed">
+                            <x-label style="visibility:hidden" id="ext-power-label-{MODULEID}"></x-label>
+                            <x-icon name="power"></x-icon>
+                        </x-button>
+                        <x-button onMouseout="status('')" onMouseOver="status('Module Settings')" onClick="showModuleSettings('{MODULEID}')" skin="flat-condensed">
+                            <x-icon name="settings"></x-icon>
+                        </x-button>
+                        </x-box>
+                    </header>
+                    <main>
+                        <div id="panel-{MODULEID}"></div>
+                    </main>
+                </x-accordion>
+            </div>
+
+            <div id="{AIOID}" class="prototype">
+                <x-label style="width:90px; max-width:90px;" id="{ID}-itemLabel" onMouseOut="status('')" onMouseOver="status('Double click: change Settings')" ondblclick="showAIOSettings('{ID}')">{NAME}</x-label>
+                <x-numberinput style="width:100px;" id="{ID}-setValue" onchange="changedSetValue(this)" value="{SET}" min="{MIN}" max="{MAX}" suffix=" {UNIT}" step="{STEP}">
+                    <x-stepper></x-stepper>
+                </x-numberinput>
+                <x-label id="{ID}-actValue" style="text-align: right; width:70px; min-width:70px; margin-left:20px">{ACT} {UNIT}</x-label>
+            </div>
+
+            <div id="{AIID}" class="prototype">
+                <x-label id="{ID}-itemLabel" onMouseOut="status('')" onMouseOver="status('Double click: change Settings')" ondblclick="showAISettings('{ID}')">{NAME}</x-label>
+                <x-label id="{ID}-actValue">{ACT} {UNIT}</x-label>
+            </div>
+        </div>
+
+        <!-- status bar -->
+        <div class="statusbar" style="width:100%">
+            <x-label style="font-size:12px; margin-right:25px; white-space: nowrap; width:100%; overflow: hidden; padding:3px;" id="logText"></x-label>
+        </div>
+        <x-card id="log-display" style="white-space: nowrap; font-size:12px; overflow: auto; display: none; position:absolute; right:0px; bottom:-28px; width:70%; height:150px;">test</x-card>
+        <x-button onMouseOver="status('show log')" onMouseout="status('')" onClick="toggleLogDisplay()" id="btn-show-logs" style="position: absolute; right:3px; bottom:0px;" skin="flat-condensed"><x-icon name="keyboard-arrow-up"></x-icon></x-button>
+        
+    </body>
+
+    <script src="./renderer.js"></script>
+    <script src="node_modules/xel/xel.min.js"></script>
+    <script>
+
+    </script>
+</html>
